@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XDOC Office Server</title>
+<link rel="shortcut icon" href="favicon.ico" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<link href="web/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container" style="padding-top:20px;">   
+	<div class="text-center">
+       <img class="img-circle" src="web/image/xdoc.png">
+       <h1>XDOC</h1>
+       <h3>Office Server</h3>
+       <a id="demo" target="_blank"></a>
+    </div>
+    <hr>
+    <a class="btn btn-block" href="http://www.xdocin.com" target="_blank">由&copy;XDOC提供技术支持</a>
+</div>
+<script>
+var href = window.location.href + "xoffice?_xformat=docx&_file=" + encodeURIComponent(window.location.href + "demo.docx");
+var demo = document.getElementById("demo");
+demo.setAttribute("href", href);
+demo.innerText = "示例：" + href;
+</script>
+</body>
+</html>
