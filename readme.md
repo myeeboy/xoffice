@@ -4,6 +4,8 @@ XDOC Office Server
 简介
 ----------------------------------------------
 一个JavaEE服务，将Office文档转换为PDF，格式兼容性好。
+![docx](https://raw.githubusercontent.com/myeeboy/xoffice/master/web/image/docx.png)
+![pdf](https://raw.githubusercontent.com/myeeboy/xoffice/master/web/image/pdf.png)
 
 安装部署
 ----------------------------------------------
