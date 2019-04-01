@@ -88,11 +88,11 @@ public class XOfficeServlet extends HttpServlet {
 			if (post) {
 				in = request.getInputStream();
 				out = new FileOutputStream(src);
-				pipe(in, out);
+				XOfficeServlet.pipe(in, out);
 			} else {
 				in = new URL(urlFile).openStream();
 				out = new FileOutputStream(src);
-				pipe(in, out);
+				XOfficeServlet.pipe(in, out);
 			}
 			if (format.startsWith("doc")) {
 				WordApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
@@ -103,7 +103,11 @@ public class XOfficeServlet extends HttpServlet {
 			}
 			out = response.getOutputStream();
 			in = new FileInputStream(tar);
-			pipe(in, out);
+			String watermark = request.getParameter("_watermark");
+			if (watermark != null && watermark.trim().length() > 0) {
+				PdfUtil.addWatermark(in, out, watermark);
+			}
+			XOfficeServlet.pipe(in, out);
 		} catch (Throwable t) {
 			response.setStatus(500);
 			logger.log(Level.SEVERE, t.getMessage(), t);

@@ -13,5 +13,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="WEB-INF/lib/jacob.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/itext.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>
