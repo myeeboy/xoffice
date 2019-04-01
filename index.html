@@ -20,7 +20,9 @@
     <a class="btn btn-block" href="http://www.xdocin.com" target="_blank">由&copy;XDOC提供技术支持</a>
 </div>
 <script>
-var href = window.location.href + "xoffice?_xformat=docx&_file=" + encodeURIComponent(window.location.href + "demo.docx");
+var href = window.location.href + "xoffice?_xformat=docx"
+		+ "&_file=" + encodeURIComponent(window.location.href + "demo.docx")
+		+ "&_watermark=" + encodeURIComponent("http://www.xdocin.com");
 var demo = document.getElementById("demo");
 demo.setAttribute("href", href);
 demo.innerText = "示例：" + href;

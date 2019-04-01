@@ -34,8 +34,12 @@ public class XOfficeServlet extends HttpServlet {
 		if ("false".equals(this.getInitParameter("clearTempFile"))) {
 			this.clearTempFile = false;
 		}
-		ComThread.InitMTA();
-		logger.info("Office Servlet Init!");
+		try {
+			ComThread.InitMTA();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+		}
+		logger.info("Office Servlet " + Version.version + " Init!");
 	}
 		
 	private String nvl(String str, String def) {

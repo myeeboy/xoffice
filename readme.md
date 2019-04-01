@@ -18,13 +18,15 @@ XDOC Office Server
 
 调用
 ----------------------------------------------
-http://locahost/xoffice/xoffice?_xformat=*文档格式*&_file=*文档地址*
+http://locahost/xoffice/xoffice?_xformat=*文档格式*&_file=*文档地址*&_watermark=*水印*
 
 文档格式：doc、docx、xls、xlsx、ppt、pptx
 
 文档地址：http、ftp协议地址，需要用UTF-8编码
 
-例：http://locahost/xoffice/xoffice?_xformat=docx&_file=http%3A%2F%2Flocahost%2Fxoffice%2Fdemo.docx
+水印：pdf水印文本
+
+例：http://locahost/xoffice/xoffice?_xformat=docx&_file=http%3A%2F%2Flocahost%2Fxoffice%2Fdemo.docx&_watermark=http%3A%2F%2Fwww.xdocin.com
 
 开源协议
 ----------------------------------------------
