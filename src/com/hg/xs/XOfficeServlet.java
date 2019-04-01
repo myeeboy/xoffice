@@ -110,8 +110,9 @@ public class XOfficeServlet extends HttpServlet {
 			String watermark = request.getParameter("_watermark");
 			if (watermark != null && watermark.trim().length() > 0) {
 				PdfUtil.addWatermark(in, out, watermark);
+			} else {
+				XOfficeServlet.pipe(in, out);
 			}
-			XOfficeServlet.pipe(in, out);
 		} catch (Throwable t) {
 			response.setStatus(500);
 			logger.log(Level.SEVERE, t.getMessage(), t);
