@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,13 +29,9 @@ public class XOfficeServlet extends HttpServlet {
 	private static final long serialVersionUID = 280698472747919447L;
 	private static Logger logger = Logger.getLogger(XOfficeServlet.class.getName());
 	private String key = null;
-	private boolean clearTempFile = true;
 	public void init() throws ServletException {
 		super.init();
 		this.key = nvl(this.getInitParameter("key"), "");
-		if ("false".equals(this.getInitParameter("clearTempFile"))) {
-			this.clearTempFile = false;
-		}
 		try {
 			ComThread.InitMTA();
 		} catch (Exception e) {
@@ -82,29 +80,46 @@ public class XOfficeServlet extends HttpServlet {
 		if (!fileName.endsWith("/") && !fileName.endsWith("\\")) {
 			fileName += "/";
 		}
-		fileName += UUID.randomUUID().toString();
-		File src = new File(fileName + "." + format);
-		File tar = new File(fileName + ".pdf");
-		logger.info(src.getAbsolutePath() + " >>> " + tar.getAbsolutePath());
 		InputStream in = null;
 		OutputStream out = null;
 		try {
+			File src, tar;
 			if (post) {
+				fileName += UUID.randomUUID().toString();
+				src = new File(fileName + "." + format);
+				tar = new File(fileName + ".pdf");
 				in = request.getInputStream();
 				out = new FileOutputStream(src);
 				XOfficeServlet.pipe(in, out);
 			} else {
-				in = new URL(urlFile).openStream();
-				out = new FileOutputStream(src);
-				XOfficeServlet.pipe(in, out);
+		    	MessageDigest m = MessageDigest.getInstance("MD5");
+		    	m.update(urlFile.getBytes("utf-8"));
+				fileName += new BigInteger(1, m.digest()).toString(16);
+				src = new File(fileName + "." + format);
+				tar = new File(fileName + ".pdf");
+				if (!src.exists()) {
+					logger.info("Read: " + urlFile + "...");
+					in = new URL(urlFile).openStream();
+					out = new FileOutputStream(src);
+					XOfficeServlet.pipe(in, out);
+				} else {
+					logger.info("Cache: " + src.getAbsolutePath());
+				}
 			}
-			if (format.startsWith("doc")) {
-				WordApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
-			} else if (format.startsWith("xls")) {
-				ExcelApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
-			} else if (format.startsWith("ppt")) {
-				PowerPointApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
+			if (!tar.exists()) {
+				logger.info(src.getAbsolutePath() + " >>> " + tar.getAbsolutePath());
+				if (format.startsWith("doc")) {
+					WordApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
+				} else if (format.startsWith("xls")) {
+					ExcelApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
+				} else if (format.startsWith("ppt")) {
+					PowerPointApp.toPdf(src.getAbsolutePath(), tar.getAbsolutePath());
+				}
+			} else {
+				logger.info("Cache: " + tar.getAbsolutePath());
 			}
+			response.setHeader("Content-Disposition", "filename=\"" + tar.getName() + "\"");
+			response.setContentType("application/pdf");
 			out = response.getOutputStream();
 			in = new FileInputStream(tar);
 			String watermark = request.getParameter("_watermark");
@@ -129,14 +144,9 @@ public class XOfficeServlet extends HttpServlet {
 				} catch (Exception e) {
 				}
 			}
-			if (clearTempFile) {
-				src.delete();
-				tar.delete();
-			}
 		}
 		logger.info("Convert stop,Use " + (System.currentTimeMillis() - s) + " ms!");
 	}
-
 	private static void pipe(InputStream in, OutputStream out)
 			throws IOException {
 		int len;
