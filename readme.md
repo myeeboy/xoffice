@@ -34,4 +34,4 @@ http://locahost/xoffice/xoffice?_xformat=*文档格式*&_file=*文档地址*&_wa
 
 技术支持
 ----------------------------------------------
-http://www.xdocin.com
+http://view.xdocin.com
