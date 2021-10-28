@@ -10,8 +10,7 @@ XDOC Office Server
 安装部署
 ----------------------------------------------
 1. 安装微软Office 2010或以上版本
-2. 安装JDK 1.6或以上版本
-3. 解压将release/xoffice.zip，运行startup.bat
+2. 解压release/xoffice.zip，运行startup.bat
 
 调用
 ----------------------------------------------
