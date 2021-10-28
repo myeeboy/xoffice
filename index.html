@@ -17,12 +17,13 @@
        <a id="demo" target="_blank"></a>
     </div>
     <hr>
-    <a class="btn btn-block" href="http://www.xdocin.com" target="_blank">由&copy;XDOC提供技术支持</a>
+    <a class="btn btn-block" href="https://view.xdocin.com" target="_blank">由&copy;XDOC提供技术支持</a>
 </div>
 <script>
-var href = window.location.href + "xoffice?_xformat=docx"
-		+ "&_file=" + encodeURIComponent(window.location.href + "demo.docx")
-		+ "&_watermark=" + encodeURIComponent("http://www.xdocin.com");
+var origin = location.href.replace("index.html", "");
+var href = origin + "xoffice?_xformat=docx"
+		+ "&_file=" + encodeURIComponent(origin + "demo.docx")
+		+ "&_watermark=" + encodeURIComponent("https://view.xdocin.com");
 var demo = document.getElementById("demo");
 demo.setAttribute("href", href);
 demo.innerText = "示例：" + href;

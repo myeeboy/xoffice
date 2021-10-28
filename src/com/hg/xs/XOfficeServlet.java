@@ -6,8 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -19,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.jacob.com.ComThread;
+import com.jacob.com.LibraryLoader;
 
 /**
  * OfficeServlet
@@ -31,6 +35,17 @@ public class XOfficeServlet extends HttpServlet {
 	private String key = null;
 	public void init() throws ServletException {
 		super.init();
+		String path = this.getClass().getResource("/").getPath();
+		int webInfPos = path.indexOf("WEB-INF");
+		if (webInfPos > 0) {
+			path = path.substring(0, webInfPos + 7);			
+			//初始化
+			String dll = path + "/dll/" + LibraryLoader.getPreferredDLLName() + ".dll";
+			if (new File(dll).exists()) {
+				System.setProperty(LibraryLoader.JACOB_DLL_PATH, dll);
+				logger.info("jacob路径:" + dll);
+			}
+		}
 		this.key = nvl(this.getInitParameter("key"), "");
 		try {
 			ComThread.InitMTA();
@@ -99,7 +114,7 @@ public class XOfficeServlet extends HttpServlet {
 				tar = new File(fileName + ".pdf");
 				if (!src.exists()) {
 					logger.info("Read:" + urlFile + "...");
-					in = new URL(urlFile).openStream();
+					in = openHttp(urlFile).getInputStream();
 					out = new FileOutputStream(src);
 					XOfficeServlet.pipe(in, out);
 				} else {
@@ -163,4 +178,67 @@ public class XOfficeServlet extends HttpServlet {
 		out.flush();
 		out.close();
 	}
+	private HttpURLConnection openHttp(String urlStr) throws IOException {
+		if (urlStr.indexOf('#') > 0) {
+			urlStr = urlStr.substring(0, urlStr.indexOf('#'));
+		}
+		logger.info("Read:" + urlStr + "...");
+		URL url = new URL(encodeURI(urlStr));
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET"); 
+		String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)";
+		conn.setRequestProperty("User-Agent",userAgent);
+		conn.setInstanceFollowRedirects(false);
+		conn.connect();  
+		if (conn.getResponseCode() == 301 || conn.getResponseCode() == 302) { 
+			String location = conn.getHeaderField("location");
+			if (location.startsWith("http://") || location.startsWith("https://")) {
+				logger.info("Read:" + location);
+				String cookies = conn.getHeaderField("Set-Cookie");  
+				URL serverUrl = new URL(location);  
+				conn = (HttpURLConnection) serverUrl.openConnection();  
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Cookie", cookies);
+				conn.addRequestProperty("User-Agent", userAgent);  
+				conn.connect();  
+			}
+		}
+		return conn;
+	}
+
+
+    private static String encodeURI(String str) {
+        char[] cs = str.toCharArray();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < cs.length; i++) {
+            if (cs[i] == '%') {
+            	try {
+            		if (i + 2 < cs.length && Integer.parseInt("" + cs[i+1] + cs[i+2], 16) >= 0) {
+            			sb.append(cs[i++]);
+            			sb.append(cs[i++]);
+            			sb.append(cs[i]);
+            			continue;
+            		}
+            	} catch (Exception e) {
+            	}
+            	sb.append("%25");
+            } else if (cs[i] >= 'a' && cs[i] <='z'
+                || cs[i] >= 'A' && cs[i] <='Z'
+                || cs[i] >= '0' && cs[i] <='9'
+                || "-_.!~*'();/?:@&=+$,#".indexOf(cs[i]) >= 0) {
+                sb.append(cs[i]);
+            } else if (cs[i] == ' ') {
+                sb.append("%20");
+            } else if (cs[i] == '\\') {
+                sb.append("/");
+            } else {
+                try {
+                    sb.append(URLEncoder.encode(String.valueOf(cs[i]), "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    sb.append(cs[i]);
+                }
+            }
+        }
+        return sb.toString();
+    }
 }
